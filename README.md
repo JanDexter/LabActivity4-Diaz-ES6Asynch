@@ -1,6 +1,4 @@
-# Post Manager
-
-Lab Activity 4 - ES6+ & Asynchronous Data Handling
+# Lab Activity 4 - ES6+ & Asynchronous Data Handling
 
 A small dashboard for browsing and managing posts, pulling live data from the
 [JSONPlaceholder](https://jsonplaceholder.typicode.com/) API using plain
