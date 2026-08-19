@@ -7,6 +7,7 @@ let posts = [];
 let users = [];
 
 const postsContainer = document.getElementById('posts-container');
+const emptyState = document.getElementById('empty-state');
 const loadingIndicator = document.getElementById('loading-indicator');
 const searchInput = document.getElementById('search-input');
 const filterAuthor = document.getElementById('filter-author');
@@ -26,7 +27,19 @@ const postBodyInput = document.getElementById('post-body');
 
 // ----- fetching -----
 
-// /posts only gives us a userId, so grab /users at the same time to get the names
+// a post from the API only has a userId, so look up the rest of what a card needs
+const withAuthor = (post) => {
+  const author = users.find((user) => user.id === post.userId);
+
+  return {
+    ...post,
+    authorName: author ? author.name : 'Unknown Author',
+    authorEmail: author ? author.email : '',
+    wordCount: post.body.trim().split(/\s+/).length
+  };
+};
+
+// both requests go out together, no point waiting for one before starting the other
 const fetchData = async () => {
   loadingIndicator.style.display = 'block';
   postsContainer.innerHTML = '';
@@ -43,26 +56,12 @@ const fetchData = async () => {
     }
 
     const rawPosts = await postsResponse.json();
-    const rawUsers = await usersResponse.json();
+    users = await usersResponse.json();
 
-    users = rawUsers;
-
-    // attach the author info to each post so the card has everything it needs
-    posts = rawPosts.map((post) => {
-      const author = users.find((user) => user.id === post.userId);
-      const wordCount = post.body.trim().split(/\s+/).length;
-
-      return {
-        ...post,
-        authorName: author ? author.name : 'Unknown Author',
-        authorEmail: author ? author.email : '',
-        wordCount
-      };
-    });
+    posts = rawPosts.map(withAuthor);
 
     populateAuthorDropdown();
-    displayPosts(posts);
-    updateStats(posts);
+    applyFilterAndSort();
     showStatus('Live data successfully fetched from JSONPlaceholder API!', 'success');
 
   } catch (error) {
@@ -98,18 +97,27 @@ const fetchComments = async (postId, buttonElement) => {
 
     commentsDiv.innerHTML = `
       <div class="comments-title"><strong>Comments (${comments.length}):</strong></div>
-      ${comments.map(({ name, email, body }) => `
+      ${comments.map(() => `
         <div class="comment-item">
-          <p class="comment-author"><strong>${name}</strong> (${email})</p>
-          <p class="comment-body">${body}</p>
+          <p class="comment-author"><strong class="comment-name"></strong> <span class="comment-email"></span></p>
+          <p class="comment-body"></p>
         </div>
       `).join('')}
     `;
 
+    // same idea as the post cards, the API text is only ever set as text
+    commentsDiv.querySelectorAll('.comment-item').forEach((item, index) => {
+      const { name, email, body } = comments[index];
+
+      item.querySelector('.comment-name').textContent = name;
+      item.querySelector('.comment-email').textContent = `(${email})`;
+      item.querySelector('.comment-body').textContent = body;
+    });
+
     buttonElement.textContent = `Hide Comments (${comments.length})`;
 
   } catch (error) {
-    commentsDiv.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+    commentsDiv.textContent = `Error: ${error.message}`;
   }
 };
 
@@ -118,17 +126,22 @@ const fetchComments = async (postId, buttonElement) => {
 
 // the same options are reused by the filter and the create form
 const populateAuthorDropdown = () => {
-  const optionsHTML = users
-    .map(({ id, name }) => `<option value="${id}">${name}</option>`)
-    .join('');
+  const fill = (select, firstLabel, firstValue) => {
+    select.innerHTML = '';
 
-  filterAuthor.innerHTML = `<option value="ALL">All Authors</option>${optionsHTML}`;
-  postAuthorSelect.innerHTML = `<option value="">Select an author...</option>${optionsHTML}`;
+    [{ id: firstValue, name: firstLabel }, ...users].forEach(({ id, name }) => {
+      const option = document.createElement('option');
+      option.value = id;
+      option.textContent = name;
+      select.appendChild(option);
+    });
+  };
+
+  fill(filterAuthor, 'All Authors', 'ALL');
+  fill(postAuthorSelect, 'Select an author...', '');
 };
 
 const displayPosts = (postsToDisplay) => {
-  const emptyState = document.getElementById('empty-state');
-
   if (postsToDisplay.length === 0) {
     postsContainer.innerHTML = '';
     emptyState.style.display = 'block';
@@ -137,31 +150,38 @@ const displayPosts = (postsToDisplay) => {
 
   emptyState.style.display = 'none';
 
-  postsContainer.innerHTML = postsToDisplay.map((post) => {
-    const { id, title, body, authorName, authorEmail, wordCount } = post;
-
-    return `
+  // only ids and numbers go into the markup itself
+  postsContainer.innerHTML = postsToDisplay.map(({ id, wordCount }) => `
       <div class="post-card" id="post-${id}">
         <div class="post-header">
-          <h3 class="post-title">#${id} - ${title}</h3>
+          <h3 class="post-title"></h3>
           <span class="badge">${wordCount} words</span>
         </div>
-        <p class="post-author-info">By: <strong>${authorName}</strong> | <span>${authorEmail}</span></p>
-        <p class="post-body">${body}</p>
+        <p class="post-author-info">By: <strong class="author-name"></strong> | <span class="author-email"></span></p>
+        <p class="post-body"></p>
 
         <div class="post-footer">
-          <button class="btn btn-secondary btn-sm" onclick="fetchComments(${id}, this)">
+          <button class="btn btn-secondary btn-sm" data-action="comments" data-id="${id}">
             View Comments
           </button>
           <div class="post-actions">
-            <button class="btn btn-danger btn-sm" onclick="handleDeletePost(${id})">Delete</button>
+            <button class="btn btn-danger btn-sm" data-action="delete" data-id="${id}">Delete</button>
           </div>
         </div>
 
         <div id="comments-${id}" class="comments-container" style="display: none;"></div>
       </div>
-    `;
-  }).join('');
+    `).join('');
+
+  // the text goes in with textContent, so a post titled "<img onerror=...>" stays text
+  postsToDisplay.forEach(({ id, title, body, authorName, authorEmail }) => {
+    const card = document.getElementById(`post-${id}`);
+
+    card.querySelector('.post-title').textContent = `#${id} - ${title}`;
+    card.querySelector('.author-name').textContent = authorName;
+    card.querySelector('.author-email').textContent = authorEmail;
+    card.querySelector('.post-body').textContent = body;
+  });
 };
 
 // runs on every search keystroke and dropdown change
@@ -234,15 +254,11 @@ createPostForm.addEventListener('submit', async (event) => {
     }
 
     const createdPost = await response.json();
-    const author = users.find((user) => user.id === userId);
 
     // the API always returns id 101, so give it our own id to avoid duplicates
     const newPost = {
-      ...createdPost,
-      id: posts.length > 0 ? Math.max(...posts.map((p) => p.id)) + 1 : 1,
-      authorName: author ? author.name : 'Unknown Author',
-      authorEmail: author ? author.email : '',
-      wordCount: body.split(/\s+/).length,
+      ...withAuthor(createdPost),
+      id: Math.max(0, ...posts.map((p) => p.id)) + 1,
     };
 
     posts = [newPost, ...posts];
@@ -301,6 +317,20 @@ const hideStatus = () => {
 
 
 // ----- events -----
+
+// one listener for the whole list, instead of an onclick on every button
+postsContainer.addEventListener('click', (event) => {
+  const button = event.target.closest('button[data-action]');
+  if (!button) return;
+
+  const postId = Number(button.dataset.id);
+
+  if (button.dataset.action === 'delete') {
+    handleDeletePost(postId);
+  } else {
+    fetchComments(postId, button);
+  }
+});
 
 searchInput.addEventListener('input', applyFilterAndSort);
 filterAuthor.addEventListener('change', applyFilterAndSort);
