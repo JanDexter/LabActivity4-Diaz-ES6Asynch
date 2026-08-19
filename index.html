@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lab Activity 4: ES6+ & Asynchronous Data Handling</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1>Lab Activity 4: ES6+ &amp; Asynchronous Data Handling</h1>
+      <p class="subtitle">Fetching live data from JSONPlaceholder API using fetch and async/await</p>
+    </header>
+
+    <div id="status-message" class="status-message" style="display: none;"></div>
+
+    <!-- counters, updated whenever the list changes -->
+    <section class="stats-section">
+      <div class="stat-card">
+        <span class="stat-label">Total Posts</span>
+        <span id="stat-total-posts" class="stat-value">0</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Unique Authors</span>
+        <span id="stat-total-authors" class="stat-value">0</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Avg. Words / Post</span>
+        <span id="stat-avg-words" class="stat-value">0</span>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <details id="create-post-details">
+        <summary><strong>+ Create New Post</strong></summary>
+        <form id="create-post-form">
+          <div class="form-group">
+            <label for="post-title">Post Title:</label>
+            <input type="text" id="post-title" required placeholder="Enter post title...">
+          </div>
+          <div class="form-group">
+            <label for="post-author">Author:</label>
+            <select id="post-author" required>
+              <option value="">Select an author...</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="post-body">Content / Body:</label>
+            <textarea id="post-body" rows="3" required placeholder="Enter post body text..."></textarea>
+          </div>
+          <div class="form-actions">
+            <button type="submit" id="submit-post-btn" class="btn btn-primary">Publish Post</button>
+            <button type="reset" class="btn btn-secondary">Reset</button>
+          </div>
+        </form>
+      </details>
+    </section>
+
+    <section class="toolbar-section">
+      <div class="toolbar-group">
+        <label for="search-input">Search:</label>
+        <input type="text" id="search-input" placeholder="Search title or content...">
+      </div>
+
+      <div class="toolbar-group">
+        <label for="filter-author">Filter by Author:</label>
+        <select id="filter-author">
+          <option value="ALL">All Authors</option>
+        </select>
+      </div>
+
+      <div class="toolbar-group">
+        <label for="sort-select">Sort by:</label>
+        <select id="sort-select">
+          <option value="id-desc">Newest First</option>
+          <option value="title-asc">Title (A &rarr; Z)</option>
+        </select>
+      </div>
+
+      <div class="toolbar-group">
+        <button id="refresh-btn" class="btn btn-secondary">Fetch Live Data</button>
+      </div>
+    </section>
+
+    <div id="loading-indicator" class="loading-indicator">
+      <p>Fetching posts and authors from API...</p>
+    </div>
+
+    <main id="posts-container" class="posts-container"></main>
+
+    <div id="empty-state" class="empty-state" style="display: none;">
+      <p>No posts match your search/filter criteria.</p>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

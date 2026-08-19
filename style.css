@@ -1,0 +1,191 @@
+body {
+  font-family: "Times New Roman", Times, serif;
+  background-color: #ffffff;
+  color: #000000;
+  margin: 15px 30px;
+}
+
+h1 {
+  font-size: 24px;
+  margin: 0 0 5px 0;
+}
+
+p {
+  margin: 5px 0;
+}
+
+.status-message {
+  border: 1px solid #000000;
+  padding: 6px;
+  margin: 10px 0;
+  background-color: #ffffcc;
+  font-family: Arial, sans-serif;
+  font-size: 13px;
+}
+
+/* one colour per message type so a failed save does not look like a good one */
+.status-message.success {
+  background-color: #ccffcc;
+}
+
+.status-message.error {
+  background-color: #ffcccc;
+}
+
+.status-message.info {
+  background-color: #ffffcc;
+}
+
+
+.stats-section {
+  display: flex;
+  gap: 8px;
+  margin: 10px 0 15px 0;
+}
+
+.stat-card {
+  border: 1px solid #000000;
+  background-color: #ece9d8;
+  padding: 4px 8px;
+  font-size: 13px;
+}
+
+.stat-label {
+  font-weight: bold;
+}
+
+.stat-label::after {
+  content: ": ";
+}
+
+.stat-value {
+  font-weight: normal;
+}
+
+
+details {
+  border: 1px solid #808080;
+  padding: 8px;
+  margin-bottom: 12px;
+  background-color: #f7f7f7;
+}
+
+summary {
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.form-group {
+  margin: 6px 0;
+}
+
+.form-group label {
+  display: inline-block;
+  width: 90px;
+  font-weight: bold;
+  vertical-align: top;
+  font-size: 14px;
+}
+
+input[type="text"],
+select,
+textarea {
+  font-family: inherit;
+  font-size: 14px;
+  padding: 2px 4px;
+}
+
+textarea {
+  width: 80%;
+}
+
+.toolbar-section {
+  border: 1px solid #808080;
+  background-color: #ece9d8;
+  padding: 8px;
+  margin-bottom: 15px;
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.toolbar-group label {
+  font-weight: bold;
+  font-size: 14px;
+}
+
+button,
+.btn {
+  font-family: inherit;
+  font-size: 13px;
+  padding: 2px 8px;
+  cursor: pointer;
+}
+
+.btn-danger {
+  color: #990000;
+  font-weight: bold;
+}
+
+.post-card {
+  border: 1px solid #000000;
+  padding: 8px;
+  margin-bottom: 10px;
+  background-color: #ffffff;
+}
+
+.post-header {
+  border-bottom: 1px solid #cccccc;
+  padding-bottom: 4px;
+  margin-bottom: 4px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.post-title {
+  font-size: 16px;
+  margin: 0;
+}
+
+.post-author-info {
+  font-size: 13px;
+  color: #333333;
+  font-style: italic;
+  margin: 3px 0;
+}
+
+.post-body {
+  font-size: 14px;
+  margin: 6px 0;
+}
+
+.post-footer {
+  margin-top: 6px;
+  padding-top: 4px;
+  border-top: 1px dotted #808080;
+  display: flex;
+  justify-content: space-between;
+}
+
+.badge {
+  font-size: 12px;
+  color: #555555;
+}
+
+.comments-container {
+  margin-top: 8px;
+  padding: 6px 10px;
+  background-color: #f0f0f0;
+  border-top: 1px dashed #808080;
+}
+
+.comment-item {
+  border-bottom: 1px dotted #cccccc;
+  padding: 4px 0;
+  font-size: 13px;
+}
+
+.comment-item:last-child {
+  border-bottom: none;
+}
